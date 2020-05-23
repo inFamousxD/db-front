@@ -9,7 +9,8 @@ Online shop prototype implemented using React, Redux, React Router, and React Ma
 
 **How to use**:
 ```bash
-Clone this repository
+Clone this repository with: 
+git clone https://github.com/inFamousxD/react-shopping
 
 npm run build
 npm start
