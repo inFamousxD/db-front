@@ -1,4 +1,3 @@
-import { sampleProducts } from "./Data";
 
 ///
 //
@@ -6,11 +5,21 @@ import { sampleProducts } from "./Data";
 //
 class Api {
   getItemUsingID(id) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        let res = sampleProducts.filter(x => x.id === parseInt(id, 10));
+    let products;
+    return new Promise(async (resolve, reject) => {
+        await fetch(`http://localhost:3000/products-id?id=${id}`)
+        .then(function(response) {
+           return response.json()
+        }).then(function(data) {
+            products = data.products;
+        });
+
+        products.forEach(product => {
+            product.imageUrls = [product.imageUrls];
+        })
+
+        let res = products.filter(x => x.id === parseInt(id, 10));
         resolve(res.length === 0 ? null : res[0]);
-      }, 500);
     });
   }
 
@@ -32,7 +41,7 @@ class Api {
     category = "popular",
     term = "",
     sortValue = "lh",
-    itemsPerPage = 10,
+    itemsPerPage = 30,
     usePriceFilter = "false",
     minPrice = 0,
     maxPrice = 1000,
@@ -41,30 +50,44 @@ class Api {
     
     // Turn this into a boolean
     usePriceFilter = usePriceFilter === "true" && true;
-    
-    return new Promise((resolve, reject) => {
 
-      setTimeout(() => {
+    let products = [];
 
-        let data = sampleProducts.filter(item => {
-          if (
-            usePriceFilter &&
-            (item.price < minPrice || item.price > maxPrice)
-          ) {
-            return false;
-          }
+    let cat = new Set();
+    return new Promise(async (resolve, reject) => {
+        await fetch('http://localhost:3000/products-all')
+        .then(function(response) {
+           return response.json()
+        }).then(function(data) {
+            products = data.products;
+        });
 
-          if (category === "popular") {
-            return item.popular;
-          }
+        products.forEach(product => {
+            product.imageUrls = [product.imageUrls];
+            cat.add(product.category)
+        })
 
-          if (category !== "All categories" && category !== item.category)
-            return false;
+        console.log('CAT', cat)
 
-          if (term && !item.name.toLowerCase().includes(term.toLowerCase()))
-            return false;
+        let data = products.filter(item => {
+            if (
+                usePriceFilter &&
+                (item.price < minPrice || item.price > maxPrice)
+            ) {
+                return false;
+            }
 
-          return true;
+            if (category === "popular") {
+                return item.popular;
+            }
+
+            if (category !== "All categories" && category !== item.category)
+                return false;
+
+            if (term && !item.name.toLowerCase().includes(term.toLowerCase()))
+                return false;
+
+            return true;
         });
 
         let totalLength = data.length;
@@ -74,7 +97,6 @@ class Api {
         data = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
         resolve({ data, totalLength });
-      }, 500);
     });
   }
 }

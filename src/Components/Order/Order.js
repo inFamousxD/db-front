@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
+import { Redirect, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import Button from "@material-ui/core/Button";
 import Table from "@material-ui/core/Table";
@@ -11,13 +11,25 @@ import { setCheckedOutItems } from "../../Redux/Actions";
 
 const mapStateToProps = state => {
   return {
-    checkedOutItems: state.checkedOutItems
+    checkedOutItems: state.checkedOutItems,
+    loggedInUser: state.loggedInUser
   };
 };
 
 // This component shows the items user checked out from the cart.
 class ConnectedOrder extends Component {
+    state = {
+        reload: false
+    }
   render() {
+    if (this.state.reload) {
+        return <Redirect
+        to={{
+            pathname: "/order-history",
+        }}
+    />
+    }
+
     let totalPrice = this.props.checkedOutItems.reduce((accumulator, item) => {
       return accumulator + item.price * item.quantity;
     }, 0);
@@ -63,7 +75,40 @@ class ConnectedOrder extends Component {
           variant="outlined"
           disabled={totalPrice === 0}
           onClick={() => {
-            console.log("purchased");
+            let px = [];
+            let total = 0;
+            this.props.checkedOutItems.forEach((x) => {
+                total += x.price * x.quantity;
+                px.push({
+                    prodId: x.id,
+                    orderId: "",
+                    quantity: x.quantity
+                })
+            })
+            let order = {
+                orderId: 1,
+                userId: this.props.loggedInUser.user.userId,
+                orderDate: new Date().toISOString(),
+                totalPrice: total,
+                products: px
+            }
+            console.log(this.props.loggedInUser)
+            fetch('http://localhost:3000/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(order),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                this.setState({ reload: true })
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors here
+            });;
           }}
           style={{ margin: 5, marginTop: 30 }}
         >

@@ -7,6 +7,7 @@ import Menu from "./Components/Menu/Menu";
 import CartDialog from "./Components/CartDialog/CartDialog";
 import Details from "./Components/Details/Details";
 import Order from "./Components/Order/Order";
+import OrderHistory from "./Components/Order/OrderHistory";
 import Login from "./Components/Login/Login";
 import ProtectedRoute from "./Components/ProtectedRoute/ProtectedRoute";
 import Footer from "./Components/Footer/Footer";
@@ -25,6 +26,7 @@ class App extends Component {
               <Route path="/details/:id" component={Details} />
               <Route path="/login" component={Login} />
               <ProtectedRoute path="/order" component={Order} />
+              <ProtectedRoute path="/order-history" component={OrderHistory} />
               <Route
                 component={() => (
                   <div style={{ padding: 20 }}>Page not found</div>

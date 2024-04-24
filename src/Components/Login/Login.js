@@ -78,17 +78,36 @@ class ConnectedLogin extends Component {
             onClick={() => {
 
               // Simulate authentication call
-              Auth.authenticate(this.state.userName, this.state.pass, user => {
-
-                if (!user) {
+              Auth.authenticate(this.state.userName, this.state.pass, async user => {
+                if (!this.state.userName || !this.state.pass || !user) {
                   this.setState({ wrongCred: true });
                   return;
-                }
+                } else {
+                    // auth
+                    let users = [];
+                    await fetch(`http://localhost:3000/user-id?email=${this.state.userName}`)
+                    .then(function(response) {
+                        return response.json()
+                    }).then(function(data) {
+                        users = data.users;
+                    });
 
-                this.props.dispatch(setLoggedInUser({ name: user.name }));
-                this.setState(() => ({
-                  redirectToReferrer: true
-                }));
+                    if (users.length === 0) {
+                        this.setState({ wrongCred: true });
+                        return;
+                    }
+
+                    if (users[0].password !== this.state.pass) {
+                        this.setState({ wrongCred: true });
+                        return;
+                    }
+                
+                    // accept
+                    this.props.dispatch(setLoggedInUser({ name: user.name, user: users[0] }));
+                    this.setState(() => ({
+                      redirectToReferrer: true
+                    }));
+                }
               });
             }}
           >

@@ -183,8 +183,26 @@ const categories = [
   {
     name: "Games",
     icon: "games"
+  },
+  {
+    name: "Personal Care",
+    icon: "person_add"
+  },
+  {
+    name: "Snacks",
+    icon: "restaurant"
+  },
+  {
+    name: "Bathroom Products",
+    icon: "bathtub"
+  },
+  {
+    name: "Bedroom Decor",
+    icon: "home"
   }
+  
 ];
+
 
 // Data for rendering menu.
 const dataForTheMenu = [
